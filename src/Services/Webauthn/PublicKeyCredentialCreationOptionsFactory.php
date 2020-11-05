@@ -54,7 +54,7 @@ final class PublicKeyCredentialCreationOptionsFactory extends AbstractOptionsFac
     {
         return new PublicKeyCredentialRpEntity(
             $this->config->get('app.name', 'Laravel'),
-            Request::getHttpHost(),
+            $this->config->get('webauthn.hostname', Request::getHttpHost()),
             $this->config->get('webauthn.icon')
         );
     }
@@ -71,7 +71,7 @@ final class PublicKeyCredentialCreationOptionsFactory extends AbstractOptionsFac
             );
         };
 
-        return array_map($callback, $this->config->get('public_key_credential_parameters') ?? [
+        return array_map($callback, $this->config->get('webauthn.public_key_credential_parameters') ?? [
             \Cose\Algorithms::COSE_ALGORITHM_ES256,
             \Cose\Algorithms::COSE_ALGORITHM_RS256,
         ]);
