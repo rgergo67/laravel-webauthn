@@ -10,5 +10,6 @@ return [
     'not_secured' => 'WebAuthn only supports secure connections. For testing over HTTP, you can use the origin "localhost".',
     'key_already_used' => 'This key is already registered. It’s not necessary to register it again.',
     'key_not_allowed' => 'The operation either timed out or was not allowed.',
+    'key_needed' => 'You need to register at least one key to access this page',
 
 ];

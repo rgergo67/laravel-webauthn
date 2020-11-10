@@ -2,8 +2,10 @@
 
 namespace LaravelWebauthn\Services\Webauthn;
 
+use Base64Url\Base64Url;
 use Illuminate\Contracts\Auth\Authenticatable as User;
 use Illuminate\Support\Facades\Request;
+use Webauthn\AuthenticationExtensions\AuthenticationExtensionsClientInputs;
 use Webauthn\AuthenticatorSelectionCriteria;
 use Webauthn\PublicKeyCredentialCreationOptions;
 use Webauthn\PublicKeyCredentialDescriptor;
@@ -23,7 +25,7 @@ final class PublicKeyCredentialCreationOptionsFactory extends AbstractOptionsFac
     {
         $userEntity = new PublicKeyCredentialUserEntity(
             $user->email ?? '',
-            $user->getAuthIdentifier(),
+            $user->getWebauthnIdentifier(),
             $user->email ?? '',
             null
         );
@@ -38,6 +40,35 @@ final class PublicKeyCredentialCreationOptionsFactory extends AbstractOptionsFac
             $this->createAuthenticatorSelectionCriteria(),
             $this->config->get('webauthn.attestation_conveyance') ?? PublicKeyCredentialCreationOptions::ATTESTATION_CONVEYANCE_PREFERENCE_NONE,
             $this->createExtensions()
+        );
+    }
+
+    public function createFromRequest($request, User $user): PublicKeyCredentialCreationOptions
+    {
+        $userEntity = new PublicKeyCredentialUserEntity(
+            $user->email ?? '',
+            $user->getWebauthnIdentifier(),
+            $user->email ?? '',
+            null
+        );
+
+        return new PublicKeyCredentialCreationOptions(
+            new PublicKeyCredentialRpEntity(
+                $request['rp']['name'],
+                $request['rp']['id']
+            ),
+            $userEntity,
+            Base64Url::decode($request['challenge']),
+            $this->createCredentialParameters(),
+            $request['timeout'],
+            $this->repository->getRegisteredKeys($user),
+            new AuthenticatorSelectionCriteria(
+                $request['authenticatorSelection']['authenticatorAttachment'] ?? null,
+                $request['authenticatorSelection']['requireResidentKey'] ?? null,
+                $request['authenticatorSelection']['userVerification'] ?? null
+            ),
+            $request['attestation'],
+            new AuthenticationExtensionsClientInputs()
         );
     }
 

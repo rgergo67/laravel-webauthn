@@ -31,6 +31,7 @@ class WebauthnKey extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'key_name',
         'credentialId',
         'type',
         'transports',

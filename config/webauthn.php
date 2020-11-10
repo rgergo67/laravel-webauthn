@@ -38,7 +38,9 @@ return [
     |
     */
 
-    'prefix' => 'webauthn',
+    'url_prefix' => 'webauthn',
+
+    'api_route_name_prefix' => 'webauthn_api.',
 
     /*
     |--------------------------------------------------------------------------
@@ -50,6 +52,8 @@ return [
     */
 
     'hostname' => env('WEBAUTHN_HOSTNAME', null),
+
+    'api_base' => env('WEBAUTHN_API_BASE', null),
 
     'authenticate' => [
         /*

@@ -6,6 +6,7 @@ return [
     'success' => 'Your key is detected and validated.',
     'insertKey' => 'Insert your security key',
     'cancel' => 'Cancel',
+    'key_name' => 'Key name',
 
     'auth' => [
         'title' => 'Authentication with a security key',
@@ -14,4 +15,5 @@ return [
     'register' => [
         'title' => 'Register a new security key',
     ],
+    'use_one_of_the_following_keys' => 'Use one of the following keys',
 ];

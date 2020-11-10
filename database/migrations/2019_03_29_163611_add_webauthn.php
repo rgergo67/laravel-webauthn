@@ -15,7 +15,7 @@ class AddWebauthn extends Migration
     {
         Schema::create('webauthn_keys', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('user_id')->unsigned();
+            $table->string('user_id')->unique();
 
             $table->string('name')->default('key');
             $table->string('credentialId', 255);
@@ -28,7 +28,6 @@ class AddWebauthn extends Migration
             $table->integer('counter');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->index('credentialId');
         });
     }

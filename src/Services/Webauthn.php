@@ -150,27 +150,23 @@ class Webauthn extends WebauthnRepository
      */
     public function forceAuthenticate()
     {
-        $this->session->put([$this->config->get('webauthn.sessionName') => true]);
+        if (request()->has('once') && request('once') == 1) {
+            return $this->session->flash($this->config->get('webauthn.sessionName') . "_once", true);
+        }
+
+        return $this->session->put($this->config->get('webauthn.sessionName'), true);
     }
 
     /**
      * Check authentication of the user in session.
+     * @param string $type Permanent or once
      *
      * @return bool
      */
-    public function check(): bool
+    public function hasActiveSession($type = 'permanent'): bool
     {
-        return (bool) $this->session->get($this->config->get('webauthn.sessionName'), false);
-    }
-
-    /**
-     * Test if the user has one webauthn key set or more.
-     *
-     * @param \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @return bool
-     */
-    public function enabled(User $user): bool
-    {
-        return (bool) $this->config->get('webauthn.enable', true) && $this->hasKey($user);
+        return $type === 'permanent'
+            ? (bool) $this->session->get($this->config->get('webauthn.sessionName'), false)
+            : (bool) $this->session->get($this->config->get('webauthn.sessionName') ."_once", false);
     }
 }

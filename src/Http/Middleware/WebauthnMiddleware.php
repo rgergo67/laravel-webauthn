@@ -18,22 +18,13 @@ class WebauthnMiddleware
     protected $config;
 
     /**
-     * The auth factory instance.
-     *
-     * @var \Illuminate\Contracts\Auth\Factory
-     */
-    protected $auth;
-
-    /**
      * Create a Webauthn.
      *
      * @param \Illuminate\Contracts\Config\Repository $config
-     * @param \Illuminate\Contracts\Auth\Factory $auth
      */
-    public function __construct(Config $config, AuthFactory $auth)
+    public function __construct(Config $config)
     {
         $this->config = $config;
-        $this->auth = $auth;
     }
 
     /**
@@ -44,18 +35,28 @@ class WebauthnMiddleware
      * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next, $type = 'permanent', $onlyWithKey = false)
     {
-        if ((bool) $this->config->get('webauthn.enable', true) &&
-            ! Webauthn::check()) {
-            abort_if($this->auth->guard($guard)->guest(), 401, trans('webauthn::errors.user_unauthenticated'));
+        if (config('webauthn.enable') === false) {
+            return $next($request);
+        }
 
-            if (Webauthn::enabled($request->user($guard))) {
-                if ($request->hasSession() && $request->session()->has('url.intended')) {
-                    return Redirect::to(route('webauthn.login'));
-                } else {
-                    return Redirect::guest(route('webauthn.login'));
-                }
+        if (session()->has('guard')) {
+            auth()->setDefaultDriver(session('guard'));
+        }
+
+        if (! Webauthn::hasActiveSession($type)) {
+
+            // Webauthn routes should be behind auth middleware, but if not, check if user is logged in
+            abort_if(auth()->guest(), 401, trans('webauthn::errors.user_unauthenticated'));
+
+            if (Webauthn::hasKey(auth()->user())) {
+                $route = route("webauthn.login_{$type}");
+                return ($request->hasSession() && $request->session()->has('url.intended'))
+                    ? Redirect::to($route)
+                    : Redirect::guest($route);
+            } else if ($onlyWithKey === 'onlywithkey') {
+                abort(401, trans('webauthn::errors.key_needed'));
             }
         }
 

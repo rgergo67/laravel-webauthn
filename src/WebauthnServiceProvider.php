@@ -4,6 +4,9 @@ namespace LaravelWebauthn;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use LaravelWebauthn\Http\Controllers\Api\WebauthnApiController;
+use LaravelWebauthn\Http\Controllers\WebauthnAuthClientController;
+use LaravelWebauthn\Http\Controllers\WebauthnRegistrationClientController;
 
 class WebauthnServiceProvider extends ServiceProvider
 {
@@ -37,14 +40,37 @@ class WebauthnServiceProvider extends ServiceProvider
      */
     private function registerRoutes()
     {
-        Route::group($this->routeConfiguration(), function (\Illuminate\Routing\Router $router): void {
-            $router->get('auth', 'WebauthnController@login')->name('webauthn.login');
-            $router->post('auth', 'WebauthnController@auth')->name('webauthn.auth');
-
-            $router->get('register', 'WebauthnController@register')->name('webauthn.register');
-            $router->post('register', 'WebauthnController@create')->name('webauthn.create');
-            $router->delete('{id}', 'WebauthnController@destroy')->name('webauthn.destroy');
+        Route::group($this->routeConfiguration(), function (): void {
+            Route::get('login-permanent/{webauthnIdentifier?}', [WebauthnAuthClientController::class, 'loginPermanent'])->name('webauthn.login_permanent');
+            Route::get('login-once/{webauthnIdentifier?}', [WebauthnAuthClientController::class, 'loginOnce'])->name('webauthn.login_once');
+            Route::post('auth', [WebauthnAuthClientController::class, 'auth'])->name('webauthn.auth');
+            Route::post('register', [WebauthnRegistrationClientController::class, 'register'])->name('webauthn.register');
+            Route::post('create', [WebauthnRegistrationClientController::class, 'create'])->name('webauthn.create');
         });
+
+        Route::prefix('api')
+            ->middleware('api')
+            ->group(function (): void {
+                Route::get('webauthn/get-all-registered-key', [WebauthnApiController::class, 'getAllRegisteredKey']);
+                Route::get('webauthn/get-public-key', [WebauthnApiController::class, 'getPublicKey']);
+                Route::get('webauthn/get-webauthn-key', [WebauthnApiController::class, 'getWebauthnKey']);
+                Route::get('webauthn/has-key', [WebauthnApiController::class, 'hasKey']);
+                Route::post('webauthn/auth', [WebauthnApiController::class, 'auth']);
+                Route::post('webauthn/create', [WebauthnApiController::class, 'create']);
+                Route::post('webauthn/store-webauthn-key', [WebauthnApiController::class, 'storeWebauthnKey']);
+            });
+
+        Route::domain(config('webauthn.api_base', null))
+            ->name(config('webauthn.api_route_name_prefix', 'webauthn_api.'))
+            ->group(function (): void {
+                Route::get('webauthn/get-all-registered-key')->name('get_all_registered_key');
+                Route::get('webauthn/get-public-key')->name('get_public_key');
+                Route::get('webauthn/get-webauthn-key')->name('get_webauthn_key');
+                Route::get('webauthn/has-key')->name('has_key');
+                Route::post('webauthn/store-webauthn-key')->name('store_webauthn_key');
+                Route::post('webauthn/auth')->name('auth');
+                Route::post('webauthn/create')->name('create');
+            });
     }
 
     /**
@@ -57,8 +83,7 @@ class WebauthnServiceProvider extends ServiceProvider
         return [
             'middleware' => self::MIDDLEWARE_GROUP,
             'domain' => config('webauthn.domain', null),
-            'namespace' => 'LaravelWebauthn\Http\Controllers',
-            'prefix' => config('webauthn.prefix', 'webauthn'),
+            'prefix' => config('webauthn.url_prefix', 'webauthn'),
         ];
     }
 

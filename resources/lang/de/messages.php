@@ -6,6 +6,7 @@ return [
     'success' => 'Ihr Sicherheitsschlüssel wurde gefunden und verifiziert.',
     'insertKey' => 'Bitte Sicherheitsschlüssel anschließen',
     'cancel' => 'Abbrechen',
+    'key_name' => 'Sicherheitsschlüssel name',
 
     'auth' => [
         'title' => 'Anmeldung mit einem Sicherheitsschlüssel',

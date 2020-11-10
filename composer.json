@@ -1,5 +1,5 @@
 {
-    "name": "asbiin/laravel-webauthn",
+    "name": "rgergo67/laravel-webauthn",
     "description": "Laravel Webauthn support",
     "keywords": [
         "laravel",
@@ -9,14 +9,10 @@
     ],
     "type": "library",
     "license": "MIT",
-    "support": {
-        "issues": "https://github.com/asbiin/laravel-webauthn/issues",
-        "source": "https://github.com/asbiin/laravel-webauthn"
-    },
     "authors": [
         {
-            "name": "Alexis Saettler",
-            "email": "alexis@saettler.org"
+            "name": "Ratting Gergő",
+            "email": "ratting.gergo@uni-pannon.hu"
         }
     ],
     "require": {

@@ -95,7 +95,7 @@ final class PublicKeyCredentialValidator extends AbstractValidatorFactory
             $response,
             $publicKeyCredentialRequestOptions,
             ServerRequest::fromGlobals(),
-            $user->getAuthIdentifier()
+            $user->getWebauthnIdentifier()
         );
 
         return true;

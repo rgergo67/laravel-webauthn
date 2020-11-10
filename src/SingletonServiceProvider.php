@@ -28,6 +28,7 @@ class SingletonServiceProvider extends ServiceProvider implements DeferrableProv
     {
         return [
             \LaravelWebauthn\Services\Webauthn\CredentialRepository::class,
+            \LaravelWebauthn\Services\WebauthnClient::class,
             \LaravelWebauthn\Services\Webauthn::class,
         ];
     }

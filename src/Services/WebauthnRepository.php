@@ -3,6 +3,7 @@
 namespace LaravelWebauthn\Services;
 
 use Illuminate\Contracts\Auth\Authenticatable as User;
+use LaravelWebauthn\Facades\WebauthnClient;
 use LaravelWebauthn\Models\WebauthnKey;
 use Webauthn\PublicKeyCredentialSource;
 
@@ -19,7 +20,7 @@ abstract class WebauthnRepository
     public function create(User $user, string $keyName, PublicKeyCredentialSource $publicKeyCredentialSource)
     {
         $webauthnKey = WebauthnKey::make([
-            'user_id' => $user->getAuthIdentifier(),
+            'user_id' => $user->getWebauthnIdentifier(),
             'name' => $keyName,
         ]);
         $webauthnKey->publicKeyCredentialSource = $publicKeyCredentialSource;
@@ -29,13 +30,13 @@ abstract class WebauthnRepository
     }
 
     /**
-     * Detect if user has a key.
+     * Test if the user has one webauthn key set or more.
      *
-     * @param User $user
+     * @param \Illuminate\Contracts\Auth\Authenticatable  $user
      * @return bool
      */
     public function hasKey(User $user): bool
     {
-        return WebauthnKey::where('user_id', $user->getAuthIdentifier())->count() > 0;
+        return (bool) WebauthnClient::hasKey($user->getWebauthnIdentifier());
     }
 }
